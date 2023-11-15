@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+:root {
+    --theme-color: #C21010;
+    --theme-bg: "#000";
+    --text-color: "#fff";
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body.light-theme {
+    --theme-bg: "#fff";
+    --text-color: "#000";
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(114, 113, 113);
+    border-radius: 10px;
+    height: 200px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.react-player {
+    height: 77vh !important;
+    width: 100% !important;
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    width: 100px;
+}
+
+@media screen and (min-width: 400px) {
+    .search-bar {
+        width: 150px;
+    }
+}
+
+@media screen and (min-width: 670px) {
+    .search-bar {
+        width: 350px;
+    }
+}
+
+.category_btn {
+    font-weight: bold;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background: transparent;
+    outline: none;
+    border: none;
+    color: var(--text-color);
+    column-gap: 0.5rem;
+    padding: 7px 15px;
+    margin: 10px 0px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.category_btn:hover {
+    background: var(--theme-color);
+    color: var(--text-color) !important;
+}
+
+.category_btn:hover span {
+    color: var(--text-color) !important;
+}
+
+@media screen and (max-width: 900px) {
+    .category_btn {
+        margin: 10px;
+    }
+}
+
+@media screen and (max-width:800px) {
+    .copyright {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .scroll-horizontal {
+        overflow: auto !important;
+    }
+
+    .react-player {
+        height: 45vh !important;
+    }
+}
