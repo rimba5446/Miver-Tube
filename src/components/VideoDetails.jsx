@@ -8,14 +8,22 @@ import themeContext from "../utils/themeContext";
 import { Loader, Videos } from "./";
 
 export default function VideoDetails() {
+  const [comments, setComments] = useState([]);
+  const [canLoadComments, setCanLoadComments] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(false);
   const [video, Setvideo] = useState();
   const [videos, Setvideos] = useState([]);
   const [loadingvid, Setloadingvid] = useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [showDescription, setShowDescription] = useState(false);
   const [loadingvids, Setloadingvids] = useState(false);
   const { id } = useParams();
   const theme = useContext(themeContext);
   const { textColor } = theme.theme;
+
+  const handleToggleDescription = () => {
+    setShowDescription((prevValue) => !prevValue);
+  };
 
 
   const handleVideoEnd = () => {
@@ -25,6 +33,31 @@ export default function VideoDetails() {
       setCurrentVideoIndex(0);
     }
   };
+
+  const fetchComments = async () => {
+    setLoadingComments(true);
+    try {
+      const response = await fetchApi(`commentThreads?part=snippet&videoId=${video?.id}&maxResults=50`);
+      setComments(response.items.map(commentThread => commentThread.snippet.topLevelComment));
+    } catch (error) {
+      console.error('Error fetching comments:', error.message);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    console.log('Video State:', video);
+
+    setCanLoadComments(!!video?.id);
+  }, [video]);
+
+  useEffect(() => {
+    console.log('Video State:', video);
+  }, [video]);
 
   useEffect(() => {
     Setloadingvid(true);
@@ -40,6 +73,7 @@ export default function VideoDetails() {
         Setloadingvids(false);
       }
     );
+
   }, [id]);
 
   return (
@@ -60,11 +94,12 @@ export default function VideoDetails() {
                 url={`https://www.youtube.com/watch?v=${id}`}
                 className="react-player"
                 playing={true}
-                //onEnded={handleVideoEnd}
+                top='12'
+                position='realtive'
+                onEnded={handleVideoEnd}
                 controls
-
-
               />
+
 
               <Typography
                 sx={{ color: `${textColor}` }}
@@ -111,9 +146,64 @@ export default function VideoDetails() {
                 </Stack>
               </Stack>
               <Stack px={2} pb={2}>
-                <Typography sx={{ textAlign: "justify" }}>
-                  {video?.snippet?.description}
-                </Typography>
+                {showDescription ? (
+                  <Typography >
+                    {video?.snippet?.description}
+                  </Typography>
+                ) : (
+                  <Typography sx={{ maxHeight: "7em", overflow: "hidden" }}>
+                    {video?.snippet?.description}
+                  </Typography>
+                )}
+                <button
+                  onClick={() => setShowDescription(!showDescription)}
+                  style={{
+                    display: showDescription ? 'block' : 'inline-block',
+                    right: 2,
+                    width: 100,
+                    height: 34,
+                    borderRadius: 12,
+                  }}
+                >
+                  {showDescription ? "Hide" : "Show"}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (canLoadComments) {
+                      await fetchComments();
+                    }
+                  }}
+                  style={{
+                    display: 'inline-block',
+                    margin: '8px 0',
+                    padding: '8px 12px',
+                    borderRadius: 12,
+                    pointerEvents: canLoadComments ? 'auto' : 'none',
+                    opacity: canLoadComments ? 1 : 0.5,
+                  }}
+                >
+                  Load Comments
+                </button>
+                {loadingComments ? (
+                  <Loader />
+                ) : (
+                  <Stack>
+                    {comments.map((comment) => (
+                      <Box key={comment.id} mt={2} borderBottom="1px solid #ddd" pb={2}>
+                        <img
+                          src={comment.snippet.authorProfileImageUrl}
+                          alt={comment.snippet.authorDisplayName}
+                          style={{ borderRadius: '50%', marginRight: '10px', width: '40px', height: '40px' }}
+                        />
+                        <Stack>
+                          <Typography fontWeight="bold">{comment.snippet.authorDisplayName}</Typography>
+                          <Typography>{comment.snippet.textDisplay}</Typography>
+                        </Stack>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+
               </Stack>
             </Box>
           )}
@@ -132,7 +222,7 @@ export default function VideoDetails() {
             <Videos videos={videos} direction="column" />
           )}
         </Box>
-      </Stack>
-    </Box>
+      </Stack >
+    </Box >
   );
 }

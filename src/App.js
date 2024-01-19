@@ -50,6 +50,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route exact path="/" element={<Feed />} />
+            {/* <Route exact path="/history/:id" element={<History/>}/> */} Next Update V6.1.2
             <Route exact path="/video/:id" element={<VideoDetails />} />
             <Route exact path="/channel/:id" element={<ChannelDetails />} />
             <Route exact path="/search/:search" element={<SearchFeed />} />
