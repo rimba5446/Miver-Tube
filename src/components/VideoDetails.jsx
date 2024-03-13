@@ -1,19 +1,21 @@
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CardMedia, Stack, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom";
 import fetchApi from "../utils/fetchApi";
+import { demoProfilePicture } from "../utils/lib";
 import themeContext from "../utils/themeContext";
 import { Loader, Videos } from "./";
 
-export default function VideoDetails() {
+export default function VideoDetails({ channel }) {
   const [comments, setComments] = useState([]);
   const [canLoadComments, setCanLoadComments] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   const [video, Setvideo] = useState();
   const [videos, Setvideos] = useState([]);
   const [loadingvid, Setloadingvid] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
   const [loadingvids, Setloadingvids] = useState(false);
@@ -26,13 +28,13 @@ export default function VideoDetails() {
   };
 
 
-  const handleVideoEnd = () => {
-    if (currentVideoIndex < videos.length - 1) {
-      setCurrentVideoIndex((prevIndex) => prevIndex + 1);
-    } else {
-      setCurrentVideoIndex(0);
-    }
-  };
+  // const handleVideoEnd = () => {
+  //   if (currentVideoIndex < videos.length - 1) {
+  //     setCurrentVideoIndex((prevIndex) => prevIndex + 1);
+  //   } else {
+  //     setCurrentVideoIndex(0);
+  //   }
+  // };
 
   const fetchComments = async () => {
     setLoadingComments(true);
@@ -45,9 +47,6 @@ export default function VideoDetails() {
       setLoadingComments(false);
     }
   };
-
-
-
 
   useEffect(() => {
     console.log('Video State:', video);
@@ -64,6 +63,7 @@ export default function VideoDetails() {
     Setloadingvids(true);
     fetchApi(`videos?part=snippet&id=${id}`).then((data) => {
       Setvideo(data.items[0]);
+      setCurrentVideoUrl(`https://www.youtube.com/watch?v=${id}`);
       Setloadingvid(false);
     });
 
@@ -73,8 +73,17 @@ export default function VideoDetails() {
         Setloadingvids(false);
       }
     );
-
   }, [id]);
+
+  const handleVideoEnd = () => {
+    if (currentVideoIndex < videos.length - 1) {
+      setCurrentVideoIndex((prevIndex) => prevIndex + 1);
+      setCurrentVideoUrl(`https://www.youtube.com/watch?v=${videos[currentVideoIndex + 1].id.videoId}`);
+    } else {
+      setCurrentVideoIndex(0);
+      setCurrentVideoUrl(`https://www.youtube.com/watch?v=${videos[0].id.videoId}`);
+    }
+  };
 
   return (
     <Box>
@@ -91,16 +100,14 @@ export default function VideoDetails() {
           ) : (
             <Box>
               <ReactPlayer
-                url={`https://www.youtube.com/watch?v=${id}`}
+                url={currentVideoUrl}
                 className="react-player"
                 playing={true}
                 top='12'
-                position='realtive'
+                position='relative'
                 onEnded={handleVideoEnd}
                 controls
               />
-
-
               <Typography
                 sx={{ color: `${textColor}` }}
                 variant="h5"
@@ -116,6 +123,20 @@ export default function VideoDetails() {
                 py={1}
                 px={2}
               >
+                <CardMedia
+                  image={
+                    (channel?.snippet?.thumbnails?.high?.url && channel.snippet.thumbnails.high.url) ||
+                    demoProfilePicture
+                  }
+                  alt={channel?.snippet?.title || "Fallback Title"}
+                  sx={{
+                    borderRadius: "50%",
+                    height: "25px",
+                    width: "25px",
+                    border: "1px solid #e3e3e3",
+                  }}
+                />
+
                 <Link to={`/channel/${video?.snippet?.channelId}`}>
                   <Typography
                     variant={{ sm: "subtitle1", md: "h6" }}
@@ -123,7 +144,7 @@ export default function VideoDetails() {
                   >
                     {video?.snippet?.channelTitle}
                     <CheckCircleIcon
-                      sx={{ fontSize: "12px", color: "gray", ml: "5px" }}
+                      sx={{ fontSize: "12px", color: "gray", ml: "12px" }}
                     />
                   </Typography>
                 </Link>
